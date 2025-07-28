@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Instructor Profile</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 1rem;
+      line-height: 1.6;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      margin-bottom: 0.2em;
+    }
+
+    h3 {
+      margin-top: 1em;
+      color: #333;
+    }
+
+    .certs,
+    .workex {
+      margin: 0;
+      padding-left: 1.2em;
+    }
+
+    .stats {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .instructor-photo {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    #load-more {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #load-more:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="profile">
+    <p>Loading...</p>
+  </div>
+
+  <script>
+    const instructors = {
+      chandra: {
+        name: "Chandra",
+        title: "Cloud Architect & Trainer",
+        photo: "https://randomuser.me/api/portraits/men/1.jpg",
+        about: `
+          Instructor Chandra is a DevOps and Cloud expert who has taught 5,000+ students across 5+ countries.
+          At Coding Dojo, he led a team to deliver global AWS and DevOps programs. As guest faculty at Al Faisal University,
+          he taught AWS and DevOps for three semesters, shaping tech talent in Riyadh.<br><br>
+          At CodePlatoon, Chandra mentored 50+ U.S. military veterans, guiding them into tech careers. He also trained
+          employees of Fortune 500 companies like Salesforce and led elite cyber teams in the U.S. Military and National
+          Guard's annual Cyber War program.<br><br>
+          With an 80% student job success rate within six months, Chandra’s global teaching impact spans over 10 countries.
+        `,
+        course_count: "20",
+        total_students: "5,000",
+        rating: "4.8",
+        certifications: [
+          "AWS Authorized Instructor (AAI)",
+          "AWS Certified DevOps Engineer Professional",
+          "AWS Certified Solution Architect Professional",
+          "AWS Certified Security – Specialty",
+          "AWS Certified Solution Architect Associate",
+          "Pluralsight Certified Elite Instructor"
+        ],
+        workExperience: [
+          "Amazon Web Services",
+          "Pluralsight",
+          "Code Platoon",
+          "Coding Dojo",
+          "Development Bank of Singapore",
+          "American Express"
+        ]
+      }
+    };
+
+    function getInstructorId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("id");
+    }
+
+    function renderInitial(data) {
+      return `
+        <h2>Instructor</h2>
+        <h3>${data.name}</h3>
+        <p><strong>${data.title}</strong></p>
+        <div class="stats">
+          <img class="instructor-photo" src="${data.photo}" alt="${data.name}" />
+          <ul>
+            <li>Courses: ${data.course_count}</li>
+            <li>Students: ${data.total_students}</li>
+            <li>Rating: ${data.rating}</li>
+          </ul>
+        </div>
+        <button id="load-more">Load More</button>
+        <div id="extra-info" style="display: none; margin-top: 1.5rem;"></div>
+      `;
+    }
+
+    function renderMore(data) {
+      return `
+        <h3>About Me</h3>
+        <p>${data.about}</p>
+
+        <h3>Certifications</h3>
+        <ul class="certs">
+          ${data.certifications.map(cert => `<li>${cert}</li>`).join('')}
+        </ul>
+
+        <h3>Work Experience</h3>
+        <ul class="workex">
+          ${data.workExperience.map(exp => `<li>${exp}</li>`).join('')}
+        </ul>
+      `;
+    }
+
+    function resizeIframe() {
+      if (window.parent !== window) {
+        setTimeout(() => {
+          const height = document.body.scrollHeight;
+          window.parent.postMessage({ type: 'resize-iframe', height }, '*');
+        }, 300);
+      }
+    }
+
+    const id = getInstructorId();
+    const container = document.getElementById("profile");
+    const instructor = instructors[id];
+
+    if (!instructor) {
+      container.innerHTML = "<p>Instructor not found.</p>";
+    } else {
+      container.innerHTML = renderInitial(instructor);
+      resizeIframe();
+
+      setTimeout(() => {
+        const btn = document.getElementById("load-more");
+        const extra = document.getElementById("extra-info");
+        if (btn && extra) {
+          btn.addEventListener("click", () => {
+            extra.innerHTML = renderMore(instructor);
+            extra.style.display = "block";
+            btn.style.display = "none";
+            resizeIframe();
+          });
+        }
+      }, 100);
+    }
+
+    window.onload = resizeIframe;
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,13 @@
+<script>
+  window.addEventListener('message', (event) => {
+    if (event.data?.type === 'resize-iframe') {
+      const iframe = document.getElementById('instructor-frame');
+      if (iframe) {
+        iframe.style.height = `${event.data.height}px`;
+      }
+    }
+  });
+</script>
+
+<iframe id="instructor-frame" src="${baseURL}?id={id}" width="100%" height="400" style="border: none;"
+  loading="lazy"></iframe>
