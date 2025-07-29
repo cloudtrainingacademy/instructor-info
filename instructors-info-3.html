@@ -44,7 +44,7 @@
       object-fit: cover;
     }
 
-    #load-more {
+    /* #load-more {
       margin-top: 1rem;
       padding: 0.5rem 1rem;
       background: #007bff;
@@ -55,6 +55,20 @@
     }
 
     #load-more:hover {
+      background: #0056b3;
+    } */
+
+    #learn-more {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #learn-more:hover {
       background: #0056b3;
     }
   </style>
@@ -107,7 +121,28 @@
       return params.get("id");
     }
 
-    function renderInitial(data) {
+    function renderInitial(data, showLearnMoreBtn) {
+      const aboutSnippet = data.about.length > 150 ? data.about.substring(0, 150).trim() + "..." : data.about;
+
+      return `
+      <h2>Instructor</h2>
+      <h3>${data.name}</h3>
+      <p><strong>${data.title}</strong></p>
+      <div class="stats">
+        <img class="instructor-photo" src="${data.photo}" alt="${data.name}" />
+        <ul>
+          <li>Courses: ${data.course_count}</li>
+          <li>Students: ${data.total_students}</li>
+          <li>Rating: ${data.rating}</li>
+        </ul>
+      </div>
+      <h3>About Me</h3>
+      <p>${aboutSnippet}</p>
+      ${showLearnMoreBtn ? `<button id="learn-more">Learn More</button>` : ''}
+    `;
+    }
+
+    function renderFull(data) {
       return `
         <h2>Instructor</h2>
         <h3>${data.name}</h3>
@@ -120,13 +155,6 @@
             <li>Rating: ${data.rating}</li>
           </ul>
         </div>
-        <button id="load-more">Load More</button>
-        <div id="extra-info" style="display: none; margin-top: 1.5rem;"></div>
-      `;
-    }
-
-    function renderMore(data) {
-      return `
         <h3>About Me</h3>
         <p>${data.about}</p>
 
@@ -154,29 +182,31 @@
     const id = getInstructorId();
     const container = document.getElementById("profile");
     const instructor = instructors[id];
+    const isEmbedded = window.self !== window.top;
 
     if (!instructor) {
       container.innerHTML = "<p>Instructor not found.</p>";
     } else {
-      container.innerHTML = renderInitial(instructor);
-      resizeIframe();
-
-      setTimeout(() => {
-        const btn = document.getElementById("load-more");
-        const extra = document.getElementById("extra-info");
-        if (btn && extra) {
-          btn.addEventListener("click", () => {
-            extra.innerHTML = renderMore(instructor);
-            extra.style.display = "block";
-            btn.style.display = "none";
-            resizeIframe();
-          });
-        }
-      }, 100);
+      if (isEmbedded) {
+        container.innerHTML = renderInitial(instructor, isEmbedded);
+        resizeIframe();
+        setTimeout(() => {
+          const btn = document.getElementById("learn-more");
+          if (btn) {
+            btn.addEventListener("click", () => {
+              window.open(`instructors-info-3.html?id=${id}`, '_blank');
+            });
+          }
+        }, 100);
+      }
+      else {
+        container.innerHTML = renderFull(instructor);
+      }
     }
 
     window.onload = resizeIframe;
   </script>
+
 </body>
 
 </html>
